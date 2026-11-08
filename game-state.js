@@ -34,6 +34,30 @@ import {
 
 const LOCAL_KEY = "clinika.state.v05";
 
+// Идентификатор устройства. Настройки, посещённые комнаты и прогресс -
+// личные данные каждого игрока, поэтому в базе они лежат под своим
+// идентификатором. Предметы палат, наоборот, общие для всех.
+const DEVICE_KEY = "clinika.device.v05";
+
+function deviceId() {
+  try {
+    let id = localStorage.getItem(DEVICE_KEY);
+    if (!id) {
+      id = "dev_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      localStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  } catch (error) {
+    // Если localStorage недоступен - используем временный идентификатор.
+    return "dev_temp";
+  }
+}
+
+// Личные данные игрока лежат под идентификатором устройства.
+// Общий раздел для них означал бы, что выключенный кем-то голос
+// выключался бы у всех.
+const PERSONAL_ROOT = `${CLOUD_ROOT}/players/${deviceId()}`;
+
 const DEFAULTS = {
   settings: {
     sound: true,          // звук двери и атмосферы
@@ -116,7 +140,7 @@ async function push(section, value) {
 
   if (!isCloud()) return false;
   try {
-    await cloudSet(`${CLOUD_ROOT}/${section}`, value);
+    await cloudSet(`${PERSONAL_ROOT}/${section}`, value);
     return true;
   } catch (error) {
     console.warn(`[Клиника] раздел ${section} не ушёл в облако:`, error);
@@ -136,7 +160,7 @@ async function pull(section) {
   const local = readLocal();
   if (!isCloud()) return local[section];
   try {
-    const value = await cloudGet(`${CLOUD_ROOT}/${section}`);
+    const value = await cloudGet(`${PERSONAL_ROOT}/${section}`);
     if (value && typeof value === "object") {
       const base = defaults();
       local[section] = { ...base[section], ...value };
@@ -218,7 +242,7 @@ export const GameState = {
 
     if (!isCloud()) return false;
     try {
-      await cloudUpdate(`${CLOUD_ROOT}/${section}`, { [field]: value });
+      await cloudUpdate(`${PERSONAL_ROOT}/${section}`, { [field]: value });
       return true;
     } catch (error) {
       console.warn(`[Клиника] поле ${section}.${field} не ушло в облако:`, error);
@@ -235,7 +259,12 @@ export const GameState = {
   async setSetting(field, value) {
     const settings = { ...readLocal().settings };
     settings[field] = value;
-    await push("settings", settings);
+    // В облако уходит только изменённое поле. Если писать весь раздел
+    // целиком, устаревшая копия настроек на этом устройстве затирала бы
+    // общие настройки у всех игроков (так однажды голос выключился сразу везде).
+    //
+    // setField - метод этого же объекта, поэтому вызываем через this.
+    await this.setField("settings", field, value);
     return settings;
   },
 
@@ -296,7 +325,7 @@ export const GameState = {
    */
   subscribe(section, callback) {
     if (!isCloud()) return () => {};
-    return cloudOn(`${CLOUD_ROOT}/${section}`, (value) => {
+    return cloudOn(`${PERSONAL_ROOT}/${section}`, (value) => {
       if (!value || typeof value !== "object") return;
       const local = readLocal();
       const base = defaults();

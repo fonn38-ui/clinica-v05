@@ -179,10 +179,12 @@ html[data-theme="mono"] .scene__bg--room {
 
 /* ---------- Экраны ---------- */
 
+/* Экраны накладываются друг на друга. Без position:absolute второй
+   экран встаёт в поток ниже первого и уезжает за пределы окна. */
 .view {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
-  height: 100%;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s var(--ease), visibility 0.5s;
@@ -905,4 +907,41 @@ html[data-reduce-motion="1"] *::after {
   .panel { right: 14px; left: 14px; width: auto; }
   .hud__name { font-size: 11px; letter-spacing: 0.22em; }
   .corridor { padding-top: 84px; }
+
+  /* Шапка на узком экране: подпись кнопки прячем, статус сокращаем.
+     Иначе кнопка настроек уезжала за правый край экрана. */
+  .hud {
+    gap: 8px;
+    padding: 12px 12px;
+  }
+  .hud__title { gap: 6px; }
+  .hud__logo { font-size: 15px; }
+  .hud__version { display: none; }
+  .status-chip {
+    padding: 4px 8px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+  .btn {
+    padding: 8px 10px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+  /* На палате отдельная кнопка настроек - оставляем только значок. */
+  #settingsBtnRoom { padding: 8px 12px; }
+
+  /* В коридоре на узком экране подпись "Настройки" не помещалась -
+     прячем текст и оставляем только значок. */
+  #settingsBtn {
+    font-size: 0;
+    padding: 8px 11px;
+  }
+  #settingsBtn::before {
+    content: "⚙";
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .room-bar__no { font-size: 17px; }
+  .room-bar__desc { font-size: 12px; }
 }

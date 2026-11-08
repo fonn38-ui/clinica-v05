@@ -746,6 +746,7 @@ function openDialog(actorId) {
   $("dialogRole").textContent = actor.role;
   $("dialogText").textContent = actor.lines[0];
   $("dialog").hidden = false;
+  refreshSpeakButton();
 
   // Реплика произносится сразу и при каждом «Сказать ещё».
   Speech.speak(actor.lines[0], actor);
@@ -780,10 +781,20 @@ function renderSettings(settings) {
   $("voiceToggle").checked = value.voice !== false;
   $("motionToggle").checked = !!value.reduceMotion;
   $("volumeRange").value = value.masterVolume ?? 0.7;
-  $("itemScaleOut").textContent = `${Number(value.masterVolume ?? 0.7).toFixed(2)}×`;
+  $("volumeOut").textContent = `${Math.round(Number(value.masterVolume ?? 0.7) * 100)}%`;
   $("settingsNote").textContent = isCloud()
     ? "Настройки и прогресс сохраняются в Firebase."
     : "Облако недоступно — настройки хранятся в этом браузере.";
+  refreshSpeakButton();
+}
+
+// Кнопка «Повторить»: показывает, включена ли озвучка, и умеет включить её.
+function refreshSpeakButton() {
+  const btn = $("speakAgainBtn");
+  if (!btn) return;
+  btn.textContent = GameState.settings.voice === false
+    ? "🔇 Озвучка выключена — включить"
+    : "🔊 Повторить";
 }
 
 async function saveSetting(field, value) {
@@ -1091,7 +1102,7 @@ function bindEvents() {
   });
   $("motionToggle").addEventListener("change", (e) => saveSetting("reduceMotion", e.target.checked));
   $("volumeRange").addEventListener("input", (e) => {
-    $("itemScaleOut").textContent = `${Number(e.target.value).toFixed(2)}×`;
+    $("volumeOut").textContent = `${Math.round(Number(e.target.value) * 100)}%`;
   });
   $("volumeRange").addEventListener("change", (e) => saveSetting("masterVolume", Number(e.target.value)));
 
@@ -1140,6 +1151,13 @@ function bindEvents() {
   $("moreBtn").addEventListener("click", () => nextLine());
   $("speakAgainBtn").addEventListener("click", () => {
     if (!state.dialogActor) return;
+    // Озвучку выключили в настройках? Кнопка сама её включает -
+    // иначе игрок не понимает, почему игра молчит.
+    if (GameState.settings.voice === false) {
+      saveSetting("voice", true);
+      refreshSpeakButton();
+      showToast("Озвучка включена");
+    }
     const actor = ACTORS[state.dialogActor];
     Speech.speak(actor.lines[state.dialogLine], actor);
   });

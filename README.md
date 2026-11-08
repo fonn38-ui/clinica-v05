@@ -86,14 +86,22 @@ const firebaseConfig = {
 
 ## Структура данных в базе
 
+Настройки, посещённые комнаты и прогресс — **личные** данные, поэтому
+лежат под идентификатором устройства. Иначе выключенный кем-то голос
+выключался бы у всех. Предметы палат — общие, их видят все, кто в палате.
+
 ```
 clinica/
-├── settings/            { sound, voice, theme, reduceMotion, masterVolume }
-├── rooms/               { current, visited: {roomId: count}, unlocked: {} }
-├── progress/            { heard: {actorId: n}, itemsPlaced, openedDialogs }
-└── items/<roomId>/      предметы палаты
-    └── item_abc123/     { url, caption, x, y, scale, fileName, mime, cut, createdAt }
+├── players/<deviceId>/          личные данные игрока
+│   ├── settings/                { sound, voice, theme, reduceMotion, masterVolume }
+│   ├── rooms/                   { current, visited: {roomId: count}, unlocked: {} }
+│   └── progress/                { heard: {actorId: n}, itemsPlaced, openedDialogs }
+└── items/<roomId>/              предметы палаты (общие для всех)
+    └── item_abc123/             { url, caption, x, y, scale, fileName, mime, cut, createdAt }
 ```
+
+Идентификатор устройства создаётся при первом запуске и хранится в
+`localStorage` под ключом `clinika.device.v05`.
 
 ## Как работает отказоустойчивость
 
