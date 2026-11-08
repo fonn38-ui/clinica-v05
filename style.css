@@ -1,0 +1,908 @@
+/* ==========================================================================
+   Клиника v0.5 — оформление
+   Темы переключаются через data-theme на <html>.
+   ========================================================================== */
+
+:root {
+  --bg: #070a09;
+  --surface: rgba(13, 18, 17, 0.94);
+  --surface-2: rgba(24, 31, 30, 0.92);
+  --border: rgba(130, 152, 142, 0.26);
+  --border-strong: rgba(201, 161, 94, 0.42);
+  --amber: #c9a15e;
+  --amber-soft: #e2d3b4;
+  --text: #d6ded8;
+  --muted: #8d9b93;
+  --dim: #5d6a63;
+  --ok: #6fbf8b;
+  --warn: #d08a5a;
+  --err: #cf6b62;
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+  --radius: 3px;
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ---------- Темы ---------- */
+
+html[data-theme="cold"] {
+  --amber: #6fa3c4;
+  --amber-soft: #b9d6e8;
+  --bg: #060a0d;
+  --surface: rgba(12, 20, 26, 0.94);
+  --surface-2: rgba(20, 31, 39, 0.92);
+  --border: rgba(120, 160, 185, 0.26);
+  --border-strong: rgba(111, 163, 196, 0.42);
+  --text: #d2dde5;
+  --muted: #8598a5;
+}
+
+html[data-theme="warm"] {
+  --amber: #cf8b52;
+  --amber-soft: #edc49b;
+  --bg: #0b0806;
+  --surface: rgba(24, 17, 13, 0.94);
+  --surface-2: rgba(36, 26, 19, 0.92);
+  --border: rgba(170, 130, 95, 0.28);
+  --border-strong: rgba(207, 139, 82, 0.45);
+  --text: #e4d8c9;
+  --muted: #a1907f;
+}
+
+html[data-theme="mono"] {
+  --amber: #b9b9b9;
+  --amber-soft: #e2e2e2;
+  --bg: #080808;
+  --surface: rgba(18, 18, 18, 0.95);
+  --surface-2: rgba(28, 28, 28, 0.92);
+  --border: rgba(190, 190, 190, 0.22);
+  --border-strong: rgba(220, 220, 220, 0.38);
+  --text: #dedede;
+  --muted: #969696;
+}
+
+/* ---------- База ---------- */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { user-select: none; }
+
+h1, h2, h3, p { margin: 0; }
+
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  margin: 0 3px;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* ---------- Сцена ---------- */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.scene__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: filter 0.8s var(--ease), transform 14s linear;
+}
+
+/* Коридор: уходящая в перспективу линия света. */
+.scene__bg--corridor {
+  background:
+    radial-gradient(ellipse 60% 42% at 50% 34%, rgba(201, 161, 94, 0.14), transparent 70%),
+    linear-gradient(180deg, #0d1211 0%, #0a0e0d 48%, #050807 100%);
+}
+
+/* Палата: стены, пол и слабый свет из-под двери. */
+.scene__bg--room {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 34%),
+    radial-gradient(ellipse 70% 50% at 50% 68%, rgba(0, 0, 0, 0.62), transparent 72%),
+    linear-gradient(178deg, #171d1b 0%, #101614 54%, #0a0f0e 100%);
+  filter: hue-rotate(0deg) saturate(1);
+}
+
+html[data-theme="cold"] .scene__bg--room {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.26), transparent 34%),
+    radial-gradient(ellipse 70% 50% at 50% 68%, rgba(0, 0, 0, 0.6), transparent 72%),
+    linear-gradient(178deg, #141b20 0%, #0c1317 54%, #070c0f 100%);
+}
+
+html[data-theme="warm"] .scene__bg--room {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.24), transparent 34%),
+    radial-gradient(ellipse 70% 50% at 50% 68%, rgba(0, 0, 0, 0.6), transparent 72%),
+    linear-gradient(178deg, #1d1712 0%, #14100c 54%, #0c0907 100%);
+}
+
+html[data-theme="mono"] .scene__bg--room {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.3), transparent 34%),
+    radial-gradient(ellipse 70% 50% at 50% 68%, rgba(0, 0, 0, 0.66), transparent 72%),
+    linear-gradient(178deg, #161616 0%, #101010 54%, #080808 100%);
+}
+
+.scene__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.82) 100%);
+}
+
+/* Плёночное зерно. */
+.grain {
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 7s steps(6) infinite;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  17% { transform: translate(-3%, 2%); }
+  34% { transform: translate(2%, -3%); }
+  51% { transform: translate(-2%, -2%); }
+  68% { transform: translate(3%, 1%); }
+  85% { transform: translate(-1%, 3%); }
+}
+
+/* ---------- Экраны ---------- */
+
+.view {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s var(--ease), visibility 0.5s;
+}
+
+.view.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- Шапка ---------- */
+
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px clamp(16px, 3vw, 40px);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.62), transparent);
+}
+
+.hud__title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.hud__logo {
+  color: var(--amber);
+  font-size: 19px;
+  line-height: 1;
+}
+
+.hud__name {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+}
+
+.hud__version {
+  color: var(--dim);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+.hud__spacer { flex: 1; }
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--muted);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-chip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warn);
+  box-shadow: 0 0 9px currentColor;
+}
+
+.status-chip.ok .status-chip__dot { background: var(--ok); }
+.status-chip.offline .status-chip__dot { background: var(--dim); }
+.status-chip.error .status-chip__dot { background: var(--err); }
+
+/* ---------- Кнопки ---------- */
+
+.btn {
+  padding: 9px 17px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.22s var(--ease), border-color 0.22s var(--ease),
+              color 0.22s var(--ease), transform 0.12s var(--ease);
+}
+
+.btn:hover {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn:active { transform: translateY(1px); }
+
+.btn:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.btn--primary {
+  border-color: var(--border-strong);
+  background: rgba(201, 161, 94, 0.14);
+  color: var(--amber-soft);
+}
+
+.btn--primary:hover { background: rgba(201, 161, 94, 0.24); }
+
+.btn--ghost { background: transparent; }
+
+.btn--small {
+  padding: 5px 11px;
+  font-size: 10px;
+}
+
+.btn--block { width: 100%; }
+
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- Коридор ---------- */
+
+.corridor {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: 96px clamp(18px, 4vw, 56px) 44px;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.corridor__title {
+  color: var(--text);
+  font-size: clamp(28px, 5vw, 54px);
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  animation: fadeUp 0.8s var(--ease) both;
+}
+
+.corridor__lead {
+  max-width: 520px;
+  margin: 14px 0 34px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+  animation: fadeUp 0.8s 0.1s var(--ease) both;
+}
+
+.rooms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 940px;
+  margin-bottom: 26px;
+}
+
+.room-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 17px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease),
+              transform 0.25s var(--ease);
+  animation: fadeUp 0.6s var(--ease) both;
+}
+
+.room-card:hover,
+.room-card:focus-visible {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+.room-card--current {
+  border-color: var(--border-strong);
+  box-shadow: inset 0 0 0 1px rgba(201, 161, 94, 0.12);
+}
+
+.room-card__no {
+  color: var(--amber);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.room-card__name {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.room-card__type {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.room-card__visits {
+  margin-top: 4px;
+  color: var(--dim);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.corridor__hint {
+  color: var(--dim);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Панель палаты ---------- */
+
+.room-bar {
+  position: absolute;
+  top: 68px;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 0 clamp(16px, 3vw, 40px);
+}
+
+.room-bar__meta { flex: 1; min-width: 0; }
+
+.room-bar__no {
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+  color: var(--amber);
+  font-size: clamp(17px, 2.4vw, 25px);
+  font-weight: 300;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.room-bar__type {
+  color: var(--dim);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+}
+
+.room-bar__desc {
+  max-width: 620px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+}
+
+/* ---------- Персонажи ---------- */
+
+.actors {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.actor {
+  position: absolute;
+  bottom: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translateX(-50%);
+  transition: transform 0.3s var(--ease), filter 0.3s var(--ease);
+}
+
+.actor:hover,
+.actor:focus-visible {
+  transform: translateX(-50%) translateY(-5px);
+  filter: brightness(1.15);
+  outline: none;
+}
+
+.actor__figure {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(74px, 9vw, 112px);
+  height: clamp(74px, 9vw, 112px);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, rgba(201, 161, 94, 0.16), rgba(0, 0, 0, 0.72));
+  box-shadow: 0 0 36px rgba(0, 0, 0, 0.62), inset 0 0 22px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 0.4s var(--ease);
+}
+
+.actor:hover .actor__figure {
+  box-shadow: 0 0 46px rgba(201, 161, 94, 0.3), inset 0 0 22px rgba(0, 0, 0, 0.7);
+}
+
+/* Медленное «дыхание» фигуры. */
+.actor__figure::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 161, 94, 0.22);
+  animation: breathe 5.5s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.07); opacity: 0.85; }
+}
+
+.actor__icon {
+  font-size: clamp(26px, 3.4vw, 40px);
+  filter: saturate(0.72);
+}
+
+.actor__name {
+  color: var(--amber-soft);
+  font-size: 11.5px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+/* ---------- Игровые предметы ---------- */
+
+.items {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  pointer-events: none;
+}
+
+.item {
+  position: absolute;
+  width: 120px;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: grab;
+  transition: filter 0.25s var(--ease);
+}
+
+.item:hover { filter: brightness(1.16) drop-shadow(0 0 14px rgba(201, 161, 94, 0.4)); }
+
+.item--dragging { cursor: grabbing; filter: brightness(1.2); }
+
+.item__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.item__caption {
+  margin-top: 5px;
+  color: var(--amber-soft);
+  font-size: 10.5px;
+  line-height: 1.35;
+  text-align: center;
+  text-shadow: 0 2px 9px rgba(0, 0, 0, 0.95);
+  pointer-events: none;
+}
+
+.item__scale {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.78);
+  color: var(--amber-soft);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.item--selected .item__scale { display: block; }
+
+/* ---------- Диалог ---------- */
+
+.dialog {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: end center;
+}
+
+.dialog[hidden] { display: none; }
+
+.dialog__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.3s var(--ease) both;
+}
+
+.dialog__box {
+  position: relative;
+  width: min(680px, calc(100vw - 32px));
+  margin-bottom: clamp(20px, 6vh, 60px);
+  padding: 22px 24px 20px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: dialogIn 0.36s var(--ease) both;
+}
+
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialog__head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 15px;
+}
+
+.dialog__portrait {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, rgba(201, 161, 94, 0.2), rgba(0, 0, 0, 0.7));
+  font-size: 20px;
+}
+
+.dialog__who { display: flex; flex-direction: column; }
+.dialog__who strong { color: var(--amber-soft); font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; }
+.dialog__who span { color: var(--dim); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+
+.dialog__head .btn--small { margin-left: auto; }
+
+.dialog__text {
+  min-height: 76px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.72;
+}
+
+.dialog__actions {
+  display: flex;
+  gap: 9px;
+  justify-content: flex-end;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Панели ---------- */
+
+.panel {
+  position: absolute;
+  right: clamp(14px, 2.6vw, 38px);
+  bottom: clamp(24px, 5vh, 60px);
+  z-index: 50;
+  width: min(370px, calc(100vw - 28px));
+  padding: 17px 19px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(11px);
+  animation: panelIn 0.32s var(--ease) both;
+}
+
+.panel--settings { width: min(330px, calc(100vw - 28px)); }
+
+.panel[hidden] { display: none; }
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  color: var(--text);
+  font-size: 12px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.panel__head .btn--small { margin-left: auto; }
+
+.panel__pin {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 9px var(--amber);
+}
+
+.panel__note {
+  margin-top: 13px;
+  color: var(--dim);
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+/* ---------- Поля ---------- */
+
+.field {
+  display: block;
+  margin-bottom: 13px;
+}
+
+.field > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.field--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.field--row:last-of-type { border-bottom: 0; }
+.field--row > span { margin-bottom: 0; }
+
+.field input[type="text"],
+.field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.field select { cursor: pointer; }
+.field select option { background: #101615; color: var(--text); }
+
+.field input[type="text"]:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--border-strong);
+}
+
+.field input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--amber);
+  cursor: pointer;
+}
+
+.field input[type="range"] {
+  width: 100%;
+  accent-color: var(--amber);
+  cursor: pointer;
+}
+
+.field output {
+  display: block;
+  margin-top: 4px;
+  color: var(--amber-soft);
+  font-size: 11px;
+  text-align: right;
+}
+
+/* ---------- Зона загрузки ---------- */
+
+.drop {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 116px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.022);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.22s var(--ease), background 0.22s var(--ease);
+}
+
+.drop:hover,
+.drop:focus-visible,
+.drop.over {
+  border-color: var(--border-strong);
+  background: rgba(201, 161, 94, 0.07);
+  outline: none;
+}
+
+.drop.busy { opacity: 0.6; pointer-events: none; }
+
+.drop__preview {
+  max-width: 100%;
+  max-height: 96px;
+  margin-bottom: 8px;
+  object-fit: contain;
+}
+
+.drop__text { display: flex; flex-direction: column; gap: 4px; }
+
+.drop__text strong {
+  color: var(--amber-soft);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.drop__text span {
+  color: var(--dim);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+/* ---------- Тост ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 90;
+  max-width: min(460px, calc(100vw - 32px));
+  padding: 11px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(10, 14, 13, 0.96);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 13px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 14px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { border-color: rgba(207, 107, 98, 0.55); color: #f0c0bb; }
+
+/* ---------- Доступность ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+html[data-reduce-motion="1"] *,
+html[data-reduce-motion="1"] *::before,
+html[data-reduce-motion="1"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* ---------- Узкие экраны ---------- */
+
+@media (max-width: 640px) {
+  .room-bar { flex-direction: column; gap: 12px; }
+  .panel { right: 14px; left: 14px; width: auto; }
+  .hud__name { font-size: 11px; letter-spacing: 0.22em; }
+  .corridor { padding-top: 84px; }
+}

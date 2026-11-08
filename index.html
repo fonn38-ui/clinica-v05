@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="classic">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Клиника — Ночная смена v0.5</title>
+  <meta name="description" content="Клиника v0.5 — интерактивная ночная смена в психиатрической больнице. Мышь и клавиатура, смена тем, сохранение прогресса в облаке.">
+  <meta name="theme-color" content="#0a0e0d">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0e0d'/><path d='M45 20h10v25h25v10H55v25H45V55H20V45h25z' fill='%23c9a15e'/></svg>">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= КОРИДОР ================= -->
+  <section class="view view--corridor active" id="view-corridor">
+    <div class="scene">
+      <div class="scene__bg scene__bg--corridor"></div>
+      <div class="scene__vignette"></div>
+      <div class="grain"></div>
+    </div>
+
+    <header class="hud">
+      <div class="hud__title">
+        <span class="hud__logo">☽</span>
+        <span class="hud__name">КЛИНИКА</span>
+        <span class="hud__version">v0.5</span>
+      </div>
+      <div class="hud__spacer"></div>
+      <div class="status-chip" id="statusChip">
+        <span class="status-chip__dot"></span>
+        <span id="statusText">подключение…</span>
+      </div>
+      <button class="btn btn--ghost" id="settingsBtn" type="button" title="Настройки (Esc)">
+        ⚙ Настройки
+      </button>
+    </header>
+
+    <div class="corridor">
+      <h1 class="corridor__title">Ночная смена</h1>
+      <p class="corridor__lead">
+        Выберите палату. В каждой ждёт персонаж со своей историей.
+        Предметы, которые вы поставите, увидят все.
+      </p>
+
+      <div class="rooms" id="rooms" role="list">
+        <!-- карточки палат строит app.js -->
+      </div>
+
+      <p class="corridor__hint">
+        <kbd>←</kbd><kbd>→</kbd> выбор палаты · <kbd>Enter</kbd> войти ·
+        <kbd>Esc</kbd> настройки
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= ПАЛАТА ================= -->
+  <section class="view view--room" id="view-room">
+    <div class="scene">
+      <div class="scene__bg scene__bg--room" id="roomBg"></div>
+      <div class="scene__vignette"></div>
+      <div class="grain"></div>
+    </div>
+
+    <header class="hud">
+      <button class="btn btn--ghost" id="backBtn" type="button">← В коридор</button>
+      <div class="hud__spacer"></div>
+      <div class="status-chip" id="statusChipRoom">
+        <span class="status-chip__dot"></span>
+        <span id="statusTextRoom">подключение…</span>
+      </div>
+      <button class="btn btn--ghost" id="settingsBtnRoom" type="button" title="Настройки">⚙</button>
+    </header>
+
+    <div class="room-bar">
+      <div class="room-bar__meta">
+        <div class="room-bar__no">
+          <span id="roomNo">Палата №1</span>
+          <span class="room-bar__type" id="roomType">одноместная</span>
+        </div>
+        <p class="room-bar__desc" id="roomDesc"></p>
+      </div>
+      <button class="btn btn--primary" id="togglePanelBtn" type="button">
+        Добавить свой предмет
+      </button>
+    </div>
+
+    <!-- Слой игрокых предметов -->
+    <div class="items" id="items" aria-live="polite"></div>
+
+    <!-- Персонажи -->
+    <div class="actors" id="actors"></div>
+
+    <!-- Диалог -->
+    <div class="dialog" id="dialog" hidden>
+      <div class="dialog__scrim" id="dialogScrim"></div>
+      <div class="dialog__box" role="dialog" aria-modal="true" aria-labelledby="dialogName">
+        <div class="dialog__head">
+          <span class="dialog__portrait" id="dialogPortrait"></span>
+          <div class="dialog__who">
+            <strong id="dialogName">Персонаж</strong>
+            <span id="dialogRole">пациент</span>
+          </div>
+          <button class="btn btn--ghost btn--small" id="dialogCloseBtn" type="button" title="Закрыть (Esc)">✕</button>
+        </div>
+        <p class="dialog__text" id="dialogText"></p>
+        <div class="dialog__actions">
+          <button class="btn btn--ghost btn--small" id="speakAgainBtn" type="button">🔊 Повторить</button>
+          <button class="btn btn--primary btn--small" id="moreBtn" type="button">Сказать ещё</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Панель своих предметов -->
+    <div class="panel" id="itemPanel" hidden>
+      <div class="panel__head">
+        <span class="panel__pin"></span>
+        <strong>Ваш предмет</strong>
+        <button class="btn btn--ghost btn--small" id="itemPanelCloseBtn" type="button">Закрыть</button>
+      </div>
+
+      <div class="drop" id="fileDrop" tabindex="0" role="button"
+           aria-label="Прикрепить картинку или GIF">
+        <input type="file" id="itemFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+        <img class="drop__preview" id="filePreview" alt="" hidden>
+        <div class="drop__text">
+          <strong id="fileDropTitle">Прикрепить файл</strong>
+          <span id="fileDropHint">перетащите сюда или нажмите — JPG, PNG, WEBP, GIF</span>
+        </div>
+      </div>
+
+      <label class="field">
+        <span>Подпись (до 80 символов)</span>
+        <input type="text" id="itemCaption" maxlength="80" placeholder="что это и почему оно здесь?">
+      </label>
+
+      <label class="field">
+        <span>Масштаб</span>
+        <input type="range" id="itemScale" min="0.4" max="2.4" step="0.05" value="1">
+        <output id="itemScaleOut">1.00×</output>
+      </label>
+
+      <button class="btn btn--primary btn--block" id="placeItemBtn" type="button">
+        Поставить предмет
+      </button>
+    </div>
+
+    <!-- Панель настроек -->
+    <div class="panel panel--settings" id="settingsPanel" hidden>
+      <div class="panel__head">
+        <span class="panel__pin"></span>
+        <strong>Настройки</strong>
+        <button class="btn btn--ghost btn--small" id="settingsCloseBtn" type="button">Закрыть</button>
+      </div>
+
+      <label class="field field--row">
+        <span>Оформление палат</span>
+        <select id="themeSelect">
+          <option value="classic">Классическое</option>
+          <option value="cold">Холодное</option>
+          <option value="warm">Тёплое</option>
+          <option value="mono">Монохром</option>
+        </select>
+      </label>
+
+      <label class="field field--row">
+        <span>Атмосферные звуки</span>
+        <input type="checkbox" id="soundToggle">
+      </label>
+
+      <label class="field field--row">
+        <span>Озвучка персонажей</span>
+        <input type="checkbox" id="voiceToggle">
+      </label>
+
+      <label class="field field--row">
+        <span>Меньше анимаций</span>
+        <input type="checkbox" id="motionToggle">
+      </label>
+
+      <label class="field field--row">
+        <span>Общая громкость</span>
+        <input type="range" id="volumeRange" min="0" max="1" step="0.05" value="0.7">
+      </label>
+
+      <p class="panel__note" id="settingsNote">Проверяем облако…</p>
+    </div>
+  </section>
+
+  <!-- ================= ТОСТ ================= -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
