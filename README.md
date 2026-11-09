@@ -67,10 +67,25 @@ const firebaseConfig = {
 переключится на localStorage и продолжит работать, но синхронизации
 между устройствами не будет.
 
-Чтобы продлить или снять ограничение, в консоли Firebase
+#### Как продлить
+
+Файл правил уже лежит в репозитории (`database.rules.json`), проект
+указан в `.firebaserc`. Остаётся авторизоваться и задеплоить:
+
+```bash
+npm install -g firebase-tools
+firebase login
+firebase deploy --only database
+```
+
+`firebase login` откроет браузер — нужен доступ к аккаунту Google, который
+создал проект `clinika-1a6cb`. Продление меняет только дату в правилах.
+
+Либо вручную: в консоли Firebase
 (https://console.firebase.google.com/project/clinika-1a6cb/database)
-открыть раздел Rules и заменить правила. Для открытой игры без
-авторизации:
+открыть раздел Rules и заменить правила.
+
+Чтобы снять ограничение совсем, для открытой игры без авторизации:
 
 ```json
 {
