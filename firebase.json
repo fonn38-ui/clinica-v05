@@ -6,12 +6,19 @@
     "public": ".",
     "ignore": [
       "firebase.json",
+      "database.rules.json",
       "**/.*",
       "**/node_modules/**",
       "**/*.md",
       "**/*.mjs",
       "**/shots-*.png",
-      "**/items3-backup.json"
+      "**/items3-backup.json",
+      "**/*.log",
+      "**/test-*.mjs",
+      "**/diag*.mjs",
+      "**/shot*.mjs",
+      "**/cdp*.mjs",
+      "**/fb-*.mjs"
     ],
     "headers": [
       {
